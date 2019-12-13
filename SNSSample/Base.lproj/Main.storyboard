@@ -41,7 +41,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="ho1-Wu-qxn"/>
                                     <barButtonItem systemItem="action" id="Uqr-V2-3cm">
                                         <connections>
-                                            <action selector="tweet:" destination="BYZ-38-t0r" id="LUB-GJ-BkN"/>
+                                            <action selector="otherButtonTapped:" destination="BYZ-38-t0r" id="iaa-xB-Ksm"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>

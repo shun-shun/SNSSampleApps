@@ -105,13 +105,43 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
     }
     
-    @IBAction func tweet(_ sender: Any) {
-        //表示するダイアログをtwitter用に指定
-        let twitter:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)!
-        //イメージビューに画像データがあれば、投稿用の画像としてセットする
-        twitter.add(imageView.image)
-        //投稿完了時にこの括弧の中が実行される
-        twitter.completionHandler = {
+    @IBAction func otherButtonTapped(_ sender: Any) {
+        //アクションシートの上に表示されるタイトル
+        let actionController:UIAlertController = UIAlertController(title:"メニュー",message: nil,preferredStyle: .actionSheet)
+        
+        //アクションシート内のTwitterのボタン
+        let twitterAction:UIAlertAction = UIAlertAction(title: "Twitter", style: .default, handler: {//ボタン選択時に以下が実行される
+            (action:UIAlertAction!) -> Void in
+            self.label.text = "Twitterを選択しました"
+            self.post(serviceType:SLServiceTypeTwitter)})
+        
+        //アクションシート内のFacebookのボタン
+        let facebookAction:UIAlertAction = UIAlertAction(title: "Facebook", style: .default, handler: {//ボタン選択時に以下が実行される
+        (action:UIAlertAction!) -> Void in
+        self.label.text = "Facebookを選択しました"
+        self.post(serviceType:SLServiceTypeFacebook)})
+        
+        //アクションシート内のキャンセルのボタン
+        let cancelAction:UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel//指定することで赤文字で表示される
+            , handler: {//ボタン選択時に以下が実行される
+        (action:UIAlertAction!) -> Void in
+        self.label.text = "キャンセルしました"})
+        //アクションの登録
+        actionController.addAction(twitterAction)
+        actionController.addAction(facebookAction)
+        actionController.addAction(cancelAction)
+        //アクションシートの表示
+        present(actionController,animated: true,completion: nil)
+    }
+    
+    //Twitter、Facebookが選択されたときに実行されるようにしたメソッド
+    func post(serviceType:String) {
+        //選択に応じたダイアログを表示する
+        let composer:SLComposeViewController = SLComposeViewController(forServiceType: serviceType)!
+        //イメージビューに画像があれば投稿用の画像としてセットする
+        composer.add(imageView.image)
+        //投稿後に以下が実行される
+        composer.completionHandler = {
             (result:SLComposeViewControllerResult) in
             switch result {
             case .done:
@@ -123,7 +153,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             }
         }
         //投稿ダイアログを表示する
-        self.present(twitter,animated: true,completion: nil)
+        self.present(composer,animated: true,completion: nil)
     }
 }
 
