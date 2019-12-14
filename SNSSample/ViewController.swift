@@ -121,6 +121,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         self.label.text = "Facebookを選択しました"
         self.post(serviceType:SLServiceTypeFacebook)})
         
+        let faceDetectionAction:UIAlertAction = UIAlertAction(title: "顔認識", style: .default, handler: {
+            (action:UIAlertAction!) -> Void in
+            self.label.text = "顔認識を選択しました"
+            self.detect()
+        })
+        
         //アクションシート内のキャンセルのボタン
         let cancelAction:UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel//指定することで赤文字で表示される
             , handler: {//ボタン選択時に以下が実行される
@@ -129,6 +135,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         //アクションの登録
         actionController.addAction(twitterAction)
         actionController.addAction(facebookAction)
+        actionController.addAction(faceDetectionAction)
         actionController.addAction(cancelAction)
         //アクションシートの表示
         present(actionController,animated: true,completion: nil)
@@ -154,6 +161,44 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
         //投稿ダイアログを表示する
         self.present(composer,animated: true,completion: nil)
+    }
+    func detect() {
+        guard let image = imageView.image else {
+            label.text = "imageView.imageが空です"
+            return
+        }
+        
+        if let cgImage = image.cgImage {
+            let ciImage = CIImage(cgImage: cgImage)
+            let detector = CIDetector(ofType: CIDetectorTypeFace, context: nil, options: nil)
+            let features = detector?.features(in: ciImage)
+            
+            UIGraphicsBeginImageContext(image.size)
+            image.draw(in: CGRect(x: 0,
+                                  y: 0,
+                                  width: image.size.width,
+                                  height: image.size.height))
+            
+            if let features = features {
+                features.forEach{ feature in//認識できた人数分ここを実行する
+                    var faceBounds = (feature as! CIFaceFeature).bounds
+                    faceBounds.origin.y = (image.size.height - faceBounds.origin.y - faceBounds.size.height)
+                    
+                    if let context = UIGraphicsGetCurrentContext() {
+                        //描写する枠線の色を指定する
+                        context.setStrokeColor(UIColor.red.cgColor)
+                        //描写する枠線の太さを指定する
+                        context.setLineWidth(10.0)
+                        //枠線を描写する
+                        context.stroke(faceBounds)
+                    }
+                }
+                let newImage = UIGraphicsGetImageFromCurrentImageContext()
+                UIGraphicsEndImageContext()
+                //枠線を追加した画像をイメージビューに戻して表示する
+                imageView.image = newImage
+            }
+        }
     }
 }
 
